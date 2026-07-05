@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { dictionary } from './i18n.js';
 import { newsItems, scheduleItems, student } from './mockData.js';
 
