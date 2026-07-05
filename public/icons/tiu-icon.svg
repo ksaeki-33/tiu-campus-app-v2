@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="TIU Campus icon">
+  <rect width="512" height="512" rx="108" fill="#0A3D91"/>
+  <path d="M102 171h308v52H102z" fill="#C9A227"/>
+  <path d="M132 226h248v152H132z" fill="#FFFFFF"/>
+  <path d="M160 254h48v124h-48zm72 0h48v124h-48zm72 0h48v124h-48z" fill="#0A3D91"/>
+  <path d="M256 82 92 150h328L256 82Z" fill="#FFFFFF"/>
+  <path d="M112 391h288v39H112z" fill="#062B63"/>
+  <text x="256" y="206" fill="#062B63" font-family="Inter, Arial, sans-serif" font-size="42" font-weight="800" text-anchor="middle">TIU</text>
+</svg>
