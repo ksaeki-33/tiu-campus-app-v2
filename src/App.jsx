@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { dictionary } from './i18n.js';
 import { newsItems, scheduleItems, student } from './mockData.js';
 
@@ -6,6 +6,8 @@ const credentials = {
   studentId: 'TIU001',
   password: '0001',
 };
+
+const installPreferenceKey = 'tiu-campus-browser-continue';
 
 const tabs = [
   { key: 'home', icon: HomeIcon },
@@ -21,9 +23,61 @@ function App() {
   const [activeTab, setActiveTab] = useState('home');
   const [form, setForm] = useState({ studentId: '', password: '' });
   const [error, setError] = useState('');
+  const [deferredInstallPrompt, setDeferredInstallPrompt] = useState(null);
+  const [isInstalled, setIsInstalled] = useState(() => isRunningStandalone());
+  const [hasContinuedInBrowser, setHasContinuedInBrowser] = useState(() => {
+    return window.localStorage.getItem(installPreferenceKey) === 'true';
+  });
+  const [installMessage, setInstallMessage] = useState('');
   const t = dictionary[language];
 
   const studentYear = language === 'ja' ? student.yearJa : student.yearEn;
+
+  useEffect(() => {
+    function handleBeforeInstallPrompt(event) {
+      event.preventDefault();
+      setDeferredInstallPrompt(event);
+      setInstallMessage('');
+    }
+
+    function handleAppInstalled() {
+      setIsInstalled(true);
+      setDeferredInstallPrompt(null);
+      setInstallMessage('');
+      window.localStorage.removeItem(installPreferenceKey);
+    }
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    window.addEventListener('appinstalled', handleAppInstalled);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      window.removeEventListener('appinstalled', handleAppInstalled);
+    };
+  }, []);
+
+  async function handleInstallApp() {
+    if (!deferredInstallPrompt) {
+      setInstallMessage('インストール可能になるまで少し待ってから、もう一度お試しください。');
+      return;
+    }
+
+    deferredInstallPrompt.prompt();
+    const choice = await deferredInstallPrompt.userChoice;
+    setDeferredInstallPrompt(null);
+
+    if (choice.outcome === 'accepted') {
+      setInstallMessage('インストールを開始しました。完了後はホーム画面から起動してください。');
+      return;
+    }
+
+    setInstallMessage('インストールはキャンセルされました。ブラウザで続けることもできます。');
+  }
+
+  function handleContinueInBrowser() {
+    window.localStorage.setItem(installPreferenceKey, 'true');
+    setHasContinuedInBrowser(true);
+  }
 
   function handleSubmit(event) {
     event.preventDefault();
@@ -41,6 +95,18 @@ function App() {
     setForm({ studentId: '', password: '' });
     setActiveTab('home');
     setError('');
+  }
+
+  if (!isInstalled && !hasContinuedInBrowser) {
+    return (
+      <InstallPromptScreen
+        installMessage={installMessage}
+        isInstallReady={Boolean(deferredInstallPrompt)}
+        isIos={isIosDevice()}
+        onContinue={handleContinueInBrowser}
+        onInstall={handleInstallApp}
+      />
+    );
   }
 
   if (!isAuthenticated) {
@@ -78,6 +144,57 @@ function App() {
         <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} t={t} />
       </main>
     </div>
+  );
+}
+
+function isRunningStandalone() {
+  return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+}
+
+function isIosDevice() {
+  const platform = window.navigator.platform || '';
+  const userAgent = window.navigator.userAgent || '';
+  const isTouchMac = platform === 'MacIntel' && window.navigator.maxTouchPoints > 1;
+  return /iPad|iPhone|iPod/.test(userAgent) || isTouchMac;
+}
+
+function InstallPromptScreen({ installMessage, isInstallReady, isIos, onContinue, onInstall }) {
+  return (
+    <main className="install-layout">
+      <section className="install-card">
+        <img src="/icons/tiu-icon.svg" alt="" className="install-logo" />
+        <p className="install-eyebrow">Toshofu International University</p>
+        <h1>TIU Campus App</h1>
+        <p className="install-lead">
+          TIU Campus Appをホーム画面に追加すると、学生証・時間割・お知らせをアプリのように利用できます。
+        </p>
+
+        {isIos ? (
+          <section className="ios-guide" aria-label="iPhone / iPad install guide">
+            <p>Safariの共有ボタンから『ホーム画面に追加』を選択してください</p>
+            <ol>
+              <li>Safariでこのページを開く</li>
+              <li>共有ボタンを押す</li>
+              <li>ホーム画面に追加を選択</li>
+            </ol>
+          </section>
+        ) : (
+          <button className="primary-button install-button" type="button" onClick={onInstall}>
+            <DownloadIcon size={22} aria-hidden="true" />
+            アプリをインストール
+          </button>
+        )}
+
+        {!isIos && !isInstallReady && (
+          <p className="install-hint">インストール条件を確認中です。表示されない場合はブラウザで続けられます。</p>
+        )}
+        {installMessage && <p className="install-message">{installMessage}</p>}
+
+        <button className="text-button" type="button" onClick={onContinue}>
+          ブラウザで続ける
+        </button>
+      </section>
+    </main>
   );
 }
 
@@ -517,6 +634,16 @@ function ChevronRightIcon(props) {
   return (
     <IconBase {...props}>
       <path d="m9 18 6-6-6-6" />
+    </IconBase>
+  );
+}
+
+function DownloadIcon(props) {
+  return (
+    <IconBase {...props}>
+      <path d="M12 3v12" />
+      <path d="m7 10 5 5 5-5" />
+      <path d="M5 21h14" />
     </IconBase>
   );
 }

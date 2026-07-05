@@ -5,6 +5,7 @@
       "/assets/*",
       "/icons/*",
       "/manifest.json",
+      "/manifest.webmanifest",
       "/sw.js"
     ]
   },

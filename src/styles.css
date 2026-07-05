@@ -31,6 +31,7 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+  overflow-x: hidden;
   background:
     linear-gradient(135deg, rgba(10, 61, 145, 0.08), rgba(201, 162, 39, 0.1)),
     var(--tiu-background);
@@ -45,6 +46,7 @@ button {
   cursor: pointer;
 }
 
+.install-layout,
 .login-layout,
 .app-shell {
   min-height: 100vh;
@@ -54,17 +56,138 @@ button {
   padding: 18px;
 }
 
+.install-card,
 .login-panel,
 .phone-frame {
-  width: min(100%, 430px);
+  width: 100%;
+  max-width: 430px;
   background: rgba(255, 255, 255, 0.96);
   border: 1px solid rgba(217, 226, 236, 0.9);
   box-shadow: var(--shadow-card);
 }
 
+.install-card {
+  width: min(430px, calc(100vw - 36px));
+  max-width: calc(100vw - 36px);
+}
+
+.install-card,
 .login-panel {
   border-radius: 24px;
   padding: 24px;
+}
+
+.install-card {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  justify-items: center;
+  gap: 16px;
+  text-align: center;
+}
+
+.install-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 7px;
+  background: linear-gradient(90deg, var(--tiu-primary-blue), var(--tiu-accent-gold));
+}
+
+.install-logo {
+  width: 88px;
+  height: 88px;
+  margin-top: 8px;
+  border-radius: 22px;
+  box-shadow: var(--shadow-soft);
+}
+
+.install-eyebrow {
+  margin: 6px 0 -8px;
+  color: var(--tiu-muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+  line-height: 1.4;
+}
+
+.install-card h1 {
+  width: 100%;
+  margin: 0;
+  color: var(--tiu-deep-navy);
+  font-size: clamp(1.75rem, 7.2vw, 2.15rem);
+  line-height: 1.15;
+  letter-spacing: 0;
+  overflow-wrap: anywhere;
+}
+
+.install-lead {
+  margin: 0;
+  color: var(--tiu-text);
+  font-size: 1rem;
+  line-height: 1.85;
+}
+
+.install-button {
+  width: 100%;
+  margin-top: 6px;
+  font-size: 1rem;
+}
+
+.install-hint,
+.install-message {
+  margin: -2px 0 0;
+  color: var(--tiu-muted);
+  font-size: 0.84rem;
+  line-height: 1.6;
+}
+
+.install-message {
+  width: 100%;
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+  color: var(--tiu-deep-navy);
+  background: var(--tiu-gold-soft);
+  font-weight: 800;
+}
+
+.text-button {
+  min-height: 44px;
+  border: 0;
+  color: var(--tiu-primary-blue);
+  background: transparent;
+  font-weight: 900;
+}
+
+.ios-guide {
+  width: 100%;
+  display: grid;
+  gap: 12px;
+  border: 1px solid var(--tiu-border);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  background: var(--tiu-blue-soft);
+  text-align: left;
+}
+
+.ios-guide p {
+  margin: 0;
+  color: var(--tiu-deep-navy);
+  font-weight: 900;
+  line-height: 1.65;
+}
+
+.ios-guide ol {
+  margin: 0;
+  padding-left: 1.35rem;
+  display: grid;
+  gap: 8px;
+  color: var(--tiu-text);
+  line-height: 1.55;
+}
+
+.ios-guide li::marker {
+  color: var(--tiu-accent-gold);
+  font-weight: 900;
 }
 
 .brand-lockup {
@@ -585,11 +708,13 @@ button {
 }
 
 @media (max-width: 380px) {
+  .install-layout,
   .login-layout,
   .app-shell {
     padding: 0;
   }
 
+  .install-card,
   .login-panel,
   .phone-frame {
     min-height: 100dvh;
